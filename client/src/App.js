@@ -1,13 +1,30 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './components/Home';
 import AddSongs from './components/AddSongs';
 
-// import NavBar from './components/NavBar';
-
 function App() {
-  return <>
-  <AddSongs/>
-  </>
+  const [songData, setSongData] = useState([]); // Create state to store song data
+
+  const handleAddSong = (formData) => {
+    // Add the new song data to the state
+    setSongData([...songData, formData]);
+  };
+
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={<Home songData={songData} />} // Pass songData as a prop
+        />
+        <Route
+          path="/add-song"
+          element={<AddSongs onAddSong={handleAddSong} />} // Pass onAddSong function as a prop
+        />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

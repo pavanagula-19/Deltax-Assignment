@@ -6,11 +6,33 @@ const AddArtist = ({ show, onHide }) => {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [bio, setBio] = useState('');
 
-  const handleAddArtist = () => {
-    // Implement your logic to add the artist here
-    // You can access artistName, dateOfBirth, and bio here
-    // For example, you can send a request to your server to add the artist
-    // After adding the artist, you can close the modal using onHide()
+  const handleAddArtist = async () => {
+    const newArtist = {
+      artistName,
+      dateOfBirth,
+      bio,
+    };
+
+    try {
+      const response = await fetch("http://localhost:8080/artists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newArtist),
+      });
+
+      if (response.ok) {
+        setArtistName('');
+        setDateOfBirth('');
+        setBio('');
+        onHide();
+      } else {
+        console.error("Error saving artist data.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -67,7 +89,7 @@ const AddArtist = ({ show, onHide }) => {
         </form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant=" btn btn-outline-secondary ms-2" onClick={onHide}>Close</Button>
+        <Button variant="outline-secondary" onClick={onHide}>Close</Button>
         <Button variant="secondary" onClick={handleAddArtist}>Done</Button>
       </Modal.Footer>
     </Modal>
