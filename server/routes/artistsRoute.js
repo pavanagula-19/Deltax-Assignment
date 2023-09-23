@@ -24,15 +24,39 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+// Route to get all artists with full details
+router.get('/', async (req, res) => {
+  try {
+    const artists = await Artist.find({});
+    res.json(artists);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 router.get('/names', async (req, res) => {
-    try {
-      const artists = await Artist.find({}, 'artistName'); // Fetch only artistName field
-      const artistNames = artists.map((artist) => artist.artistName);
-      res.json({ artistNames });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Server error' });
-    }
-  });
+  try {
+    const artists = await Artist.find({}, 'artistName');
+    const artistNames = artists.map((artist) => artist.artistName);
+    res.json({ artistNames });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.delete("/", async (req, res) => {
+  try {
+    // Delete all artist records from the database
+    await Artist.deleteMany({});
+
+    res.json({ message: "All artist names deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 module.exports = router;

@@ -1,25 +1,22 @@
 const express = require("express");
 const app = express();
-const cors = require("cors"); // Import the cors middleware
+const cors = require("cors");
 const dotenv = require("dotenv");
-dotenv.config();
 const connectDatabase = require("./database");
 
+dotenv.config();
 connectDatabase();
 
-// Use the cors middleware
 app.use(cors());
-
-// Import artist routes
-const artistsRouter = require("./routes/artistsRoute");
-
-// Middleware to parse JSON requests
 app.use(express.json());
 
-// Use artist routes
-app.use("/artists", artistsRouter);
+// Import artist and song routes
+const artistsRouter = require("./routes/artistsRoute");
 const songsRouter = require("./routes/songsRoute");
-app.use("/songs", songsRouter);
+
+// Use artist and song routes
+app.use("/artists", artistsRouter);
+app.use("/songs", songsRouter); // Define a route for songs
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running at port ${process.env.PORT}`);

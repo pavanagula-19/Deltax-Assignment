@@ -1,78 +1,100 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'react-bootstrap';
-import AddArtist from './AddArtist';
-import NavBar from './NavBar';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import AddArtist from './AddArtist';
+import { Button } from 'react-bootstrap';
+import NavBar from './NavBar';
 
 const AddSongs = () => {
-  const fileInputRef = useRef(null);
-  const [showAddArtistModal, setShowAddArtistModal] = useState(false);
-  const [artists, setArtists] = useState([]);
-  const [selectedArtist, setSelectedArtist] = useState('');
-  const [songName, setSongName] = useState('');
-  const [dateReleased, setDateReleased] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  useEffect(() => {
-    fetchArtistNames();
-  }, []);
-
-  const fetchArtistNames = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/artists/names');
-      if (response.ok) {
-        const data = await response.json();
-        setArtists(data.artistNames);
-      } else {
-        console.error('Error fetching artist names.');
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleUploadButtonClick = () => {
-    fileInputRef.current.click();
-  };
+    const [showAddArtistModal, setShowAddArtistModal] = useState(false);
+    const [artists, setArtists] = useState([]);
+  const [data, setData] = useState({
+    sname: '',
+    date: '',
+    img: null,
+    artists: '',
+  });
 
   const narrowerInputStyle = {
     width: '250px',
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append('name', songName);
-    formData.append('dateReleased', dateReleased);
-    formData.append('artist', selectedArtist);
-    formData.append('artWork', selectedFile);
-
-    try {
-      const response = await axios.post('http://localhost:8080/songs', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.status === 201) {
-        console.log('Song created successfully');
-        // You can add any success handling here, like showing a success message or redirecting
-      } else {
-        console.error('Error creating song.');
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  const handleFileChange = (e) => {
+    setData({
+      ...data,
+      img: e.target.files[0], // Store the selected file
+    });
   };
+    // Function to add an artist to the list
+    const handleAddArtist = (newArtist) => {
+        setArtists([...artists, newArtist]);
+        setShowAddArtistModal(false);
+      };
+    
+      // Function to fetch artist names from the server
+      const fetchArtistNames = async () => {
+        try {
+          const response = await fetch('http://localhost:8080/artists/names'); // Replace with your actual API endpoint
+          if (response.ok) {
+            const data = await response.json();
+            setArtists(data.artistNames);
+          } else {
+            console.error('Error fetching artist names.');
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    
+      // Fetch artist names when the component mounts
+      useEffect(() => {
+        fetchArtistNames();
+      }, []);
+    
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('sname', data.sname);
+        formData.append('date', data.date);
+        formData.append('artists', data.artists);
+        formData.append('artWork', data.img);
+      
+        try {
+          const response = await axios.post('http://localhost:8080/songs', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+      
+          if (response.status === 201) {
+            const songData = response.data;
+            console.log('Song created successfully');
+            console.log('Song Image URL:', songData.artWork); // Log the image URL
+      
+            // You can add any success handling here, like showing a success message or redirecting
+          } else {
+            console.error('Error creating song.');
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      
+        // Reset the form data after submission
+        setData({
+          sname: '',
+          date: '',
+          img: null,
+          artists: '',
+        });
+      };
+      
 
   return (
     <div className="container">
-      <NavBar />
+        <NavBar />
       <h1 className="mt-4">Add New Song</h1>
       <form onSubmit={handleSubmit}>
+        {/* Song Name */}
         <div className="mb-3 d-flex align-items-center">
           <label htmlFor="songName" className="form-label me-2">
             Song Name
@@ -82,46 +104,41 @@ const AddSongs = () => {
             className="form-control"
             id="songName"
             style={narrowerInputStyle}
-            value={songName}
-            onChange={(e) => setSongName(e.target.value)}
+            value={data.sname}
+            onChange={(e) => setData({ ...data, sname: e.target.value })}
           />
         </div>
+
         <div className="mb-3 d-flex align-items-center">
-          <label htmlFor="dateReleased" className="form-label me-2">
-            Date Released
-          </label>
-          <input
-            type="date"
-            className="form-control"
-            id="dateReleased"
-            style={narrowerInputStyle}
-            value={dateReleased}
-            onChange={(e) => setDateReleased(e.target.value)}
-          />
-        </div>
-        <div className="mb-3 d-flex align-items-center">
-          <label htmlFor="artWork" className="form-label me-2">
-            Art Work
-          </label>
-          <div className="input-group">
+  <label htmlFor="dateReleased" className="form-label me-2">
+    Released Date
+  </label>
+  <input
+    type="date"
+    className="form-control"
+    id="dateReleased"
+    style={narrowerInputStyle}
+    value={data.date}
+    max={new Date().toISOString().split('T')[0]} // Set max date to today
+    onChange={(e) => setData({ ...data, date: e.target.value })}
+  />
+</div>
+        <div className="mb-3 row align-items-center">
+          <div className="col-auto">
+            <label htmlFor="artWork" className="form-label">
+              Art Work
+            </label>
+          </div>
+          <div className="col">
             <input
               type="file"
-              className="form-control"
+              className="form-control border-0"
               id="artWork"
-              style={{ display: 'none' }}
-              ref={fileInputRef}
-              onChange={(e) => setSelectedFile(e.target.files[0])}
+              onChange={handleFileChange}
             />
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleUploadButtonClick}
-            >
-              <FontAwesomeIcon icon={faCamera} className="me-2" />
-              Upload Image
-            </button>
           </div>
         </div>
+
         <div className="mb-3 d-flex align-items-center">
           <label htmlFor="artists" className="form-label me-2">
             Artists
@@ -131,8 +148,8 @@ const AddSongs = () => {
               className="form-select"
               id="artists"
               style={narrowerInputStyle}
-              value={selectedArtist}
-              onChange={(e) => setSelectedArtist(e.target.value)}
+              value={data.artists}
+              onChange={(e) => setData((f)=>({...f,artists:e.target.value}))}
             >
               <option value="">Select</option>
               {artists.map((artist) => (
@@ -148,9 +165,9 @@ const AddSongs = () => {
               Add Artist
             </Button>
           </div>
-        </div>
+  </div>
         <div className="mb-3 d-flex">
-          <button type="button" className="btn btn-outline-secondary me-2">
+          <button className="btn btn-outline-secondary me-2" type="reset">
             Cancel
           </button>
           <button type="submit" className="btn btn-secondary">
@@ -158,11 +175,10 @@ const AddSongs = () => {
           </button>
         </div>
       </form>
-
-      {/* AddArtist modal */}
       <AddArtist
         show={showAddArtistModal}
         onHide={() => setShowAddArtistModal(false)}
+        onAddArtist={handleAddArtist}
       />
     </div>
   );

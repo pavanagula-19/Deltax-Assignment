@@ -1,43 +1,78 @@
-// routes/songsRoute.js
 const express = require("express");
 const router = express.Router();
-const multer = require("multer"); // Use Multer for file uploads
-const path = require("path");
-const Song = require("../models/songsSchema");
+const multer = require("multer");
+const { Song } = require("../models/songsSchema");
+const cloudinary = require("cloudinary").v2; // Import Cloudinary
+const { CloudinaryStorage } = require("multer-storage-cloudinary"); // Import Cloudinary storage for Multer
 
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Define the destination folder for uploaded files
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix =
-      Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname)); // Create unique filenames
+// Configure Cloudinary (replace with your own credentials from .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Configure multer to handle file uploads using Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'song-artwork', // Replace with your desired folder name
+    resource_type: 'auto',
   },
 });
 
 const upload = multer({ storage });
 
-// Route to create a new song
+// Define a route for creating a new song
 router.post("/", upload.single("artWork"), async (req, res) => {
   try {
-    const { name, dateReleased, artist } = req.body;
-    const artWork = req.file ? req.file.filename : null; // Store the uploaded filename in the database
+    // Access other form data
+    const { sname, date, artists } = req.body;
 
-    const newSong = new Song({
-      name,
-      dateReleased,
-      artist,
-      artWork,
+    // Access the Cloudinary image URL from the uploaded file
+    const artWorkUrl = req.file.path;
+
+    // Create a new song document with the Cloudinary image URL
+    const song = new Song({
+      sname,
+      date, // Make sure 'date' corresponds to the date of release
+      artists,
+      artWork: artWorkUrl, // Store the Cloudinary URL
     });
 
-    await newSong.save();
-    res.status(201).json({ message: "Song created successfully" });
+    // Save the song to the database
+    await song.save();
+
+    res.status(201).json(song);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
+router.get("/", async (req, res) => {
+    try {
+      // Retrieve all songs from the database
+      const songs = await Song.find();
+  
+      res.status(200).json(songs);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+
+router.delete("/", async (req, res) => {
+    try {
+      // Delete all songs from the database
+      await Song.deleteMany({});
+  
+      res.status(204).json({ message: "All songs deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+
+// Export the router
 module.exports = router;

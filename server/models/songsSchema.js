@@ -1,23 +1,15 @@
-// models/Song.js
 const mongoose = require("mongoose");
 
 const songSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  dateReleased: {
-    type: Date,
-    required: true,
-  },
-  artist: {
-    type: String, // You can store the artist's name as a string for simplicity
-    required: true,
-  },
-  artWork: {
-    type: String, // Store the path to the uploaded artwork image
-    required: true,
-  },
+    sname: String, // Song name
+    date: Date,
+    artists: String, // Artist name or ID (you can adjust this based on your schema)
+    artWork: {
+      type: String,
+      required: true
+    },
 });
 
-module.exports = mongoose.model("Song", songSchema);
+const Song = mongoose.model("Song", songSchema);
+
+module.exports = { Song };

@@ -1,9 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavBar from './NavBar';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import Rating from './Rating';
 
-const Home = ({ songData }) => {
-  const [tableData, setTableData] = useState(songData);
+const Home = () => {
+  const [tableData, setTableData] = useState([]);
+  const [artistsData, setArtistsData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch top songs data
+        const response = await axios.get('http://localhost:8080/songs');
+        setTableData(response.data);
+
+        // Fetch top artists data (including names, date of birth, and songs)
+        const artistsResponse = await axios.get('http://localhost:8080/artists/');
+        setArtistsData(artistsResponse.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
 
   return (
     <div className="container mt-4">
@@ -22,17 +44,42 @@ const Home = ({ songData }) => {
               <th>Song</th>
               <th>Date of Released</th>
               <th>Artists</th>
-              <th>Rate</th>
+              <th>Rating</th>
             </tr>
           </thead>
           <tbody>
             {tableData.map((song, index) => (
               <tr key={index}>
-                <td>{song.artWork}</td>
-                <td>{song.songName}</td>
-                <td>{song.dateReleased}</td>
+                <td>
+                  <img src={song.artWork} alt={song.sname} style={{ width: '100px' }} />
+                </td>
+                <td>{song.sname}</td>
+                <td>{song.date}</td>
                 <td>{song.artists}</td>
-                <td>Rating</td>
+                <td>
+                  <Rating />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <h3>Top 10 Artists</h3>
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>Artists</th>
+              <th>Date of Birth</th>
+              <th>Songs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {artistsData.map((artist, index) => (
+              <tr key={index}>
+                <td>{artist.artistName}</td>
+                <td>{artist.dateOfBirth}</td>
+                <td>{artist.bio}</td>
               </tr>
             ))}
           </tbody>
