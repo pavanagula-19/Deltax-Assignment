@@ -54,7 +54,7 @@ const Home = () => {
                   <img src={song.artWork} alt={song.sname} style={{ width: '100px' }} />
                 </td>
                 <td>{song.sname}</td>
-                <td>{song.date}</td>
+                <td>{song.date.split("T")[0]}</td>
                 <td>{song.artists}</td>
                 <td>
                   <Rating />
@@ -78,7 +78,7 @@ const Home = () => {
             {artistsData.map((artist, index) => (
               <tr key={index}>
                 <td>{artist.artistName}</td>
-                <td>{artist.dateOfBirth}</td>
+                <td>{artist.dateOfBirth.split("T")[0]}</td>
                 <td>{artist.bio}</td>
               </tr>
             ))}
