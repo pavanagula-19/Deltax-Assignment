@@ -12,10 +12,10 @@ const Home = () => {
     const fetchData = async () => {
       try {
         // Fetch top songs data
-        const response = await axios.get("http://localhost:8080/songs");
+        const response = await axios.get("https://server-pavanagulla.onrender.com/songs");
         setTableData(response.data);
         const artistsResponse = await axios.get(
-          "http://localhost:8080/artists/"
+          "https://server-pavanagulla.onrender.com/artists/"
         );
         setArtistsData(artistsResponse.data);
       } catch (error) {

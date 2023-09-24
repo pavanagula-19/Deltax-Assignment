@@ -14,7 +14,7 @@ const AddArtist = ({ show, onHide }) => {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/artists", {
+      const response = await fetch("https://server-pavanagulla.onrender.com/artists", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

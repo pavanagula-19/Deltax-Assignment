@@ -31,7 +31,7 @@ const AddSongs = () => {
   };
   const fetchArtistNames = async () => {
     try {
-      const response = await fetch("http://localhost:8080/artists/names");
+      const response = await fetch("https://server-pavanagulla.onrender.com/artists/names");
       if (response.ok) {
         const data = await response.json();
         setArtists(data.artistNames);
@@ -56,7 +56,7 @@ const AddSongs = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/songs",
+        "https://server-pavanagulla.onrender.com/songs",
         formData,
         {
           headers: {
