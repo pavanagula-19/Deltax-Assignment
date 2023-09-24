@@ -1,97 +1,93 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import AddArtist from './AddArtist';
-import { Button } from 'react-bootstrap';
-import NavBar from './NavBar';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import AddArtist from "./AddArtist";
+import { Button } from "react-bootstrap";
+import NavBar from "./NavBar";
 
 const AddSongs = () => {
-    const [showAddArtistModal, setShowAddArtistModal] = useState(false);
-    const [artists, setArtists] = useState([]);
+  const [showAddArtistModal, setShowAddArtistModal] = useState(false);
+  const [artists, setArtists] = useState([]);
   const [data, setData] = useState({
-    sname: '',
-    date: '',
+    sname: "",
+    date: "",
     img: null,
-    artists: '',
+    artists: "",
   });
 
   const narrowerInputStyle = {
-    width: '250px',
+    width: "250px",
   };
 
   const handleFileChange = (e) => {
     setData({
       ...data,
-      img: e.target.files[0], // Store the selected file
+      img: e.target.files[0],
     });
   };
-    // Function to add an artist to the list
-    const handleAddArtist = (newArtist) => {
-        setArtists([...artists, newArtist]);
-        setShowAddArtistModal(false);
-      };
-    
-      // Function to fetch artist names from the server
-      const fetchArtistNames = async () => {
-        try {
-          const response = await fetch('http://localhost:8080/artists/names'); // Replace with your actual API endpoint
-          if (response.ok) {
-            const data = await response.json();
-            setArtists(data.artistNames);
-          } else {
-            console.error('Error fetching artist names.');
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-    
-      // Fetch artist names when the component mounts
-      useEffect(() => {
-        fetchArtistNames();
-      }, []);
-    
 
-      const handleSubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('sname', data.sname);
-        formData.append('date', data.date);
-        formData.append('artists', data.artists);
-        formData.append('artWork', data.img);
-      
-        try {
-          const response = await axios.post('http://localhost:8080/songs', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-      
-          if (response.status === 201) {
-            const songData = response.data;
-            console.log('Song created successfully');
-            console.log('Song Image URL:', songData.artWork); // Log the image URL
-      
-            // You can add any success handling here, like showing a success message or redirecting
-          } else {
-            console.error('Error creating song.');
-          }
-        } catch (error) {
-          console.error(error);
+  const handleAddArtist = (newArtist) => {
+    setArtists([...artists, newArtist]);
+    setShowAddArtistModal(false);
+  };
+  const fetchArtistNames = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/artists/names");
+      if (response.ok) {
+        const data = await response.json();
+        setArtists(data.artistNames);
+      } else {
+        console.error("Error fetching artist names.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchArtistNames();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("sname", data.sname);
+    formData.append("date", data.date);
+    formData.append("artists", data.artists);
+    formData.append("artWork", data.img);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/songs",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      
-        // Reset the form data after submission
-        setData({
-          sname: '',
-          date: '',
-          img: null,
-          artists: '',
-        });
-      };
-      
+      );
+
+      if (response.status === 201) {
+        const songData = response.data;
+        console.log("Song created successfully");
+        console.log("Song Image URL:", songData.artWork);
+      } else {
+        console.error("Error creating song.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    // Reset the form data after submission
+    setData({
+      sname: "",
+      date: "",
+      img: null,
+      artists: "",
+    });
+  };
 
   return (
     <div className="container">
-        <NavBar />
+      <NavBar />
       <h1 className="mt-4">Add New Song</h1>
       <form onSubmit={handleSubmit}>
         {/* Song Name */}
@@ -110,19 +106,19 @@ const AddSongs = () => {
         </div>
 
         <div className="mb-3 d-flex align-items-center">
-  <label htmlFor="dateReleased" className="form-label me-2">
-    Released Date
-  </label>
-  <input
-    type="date"
-    className="form-control"
-    id="dateReleased"
-    style={narrowerInputStyle}
-    value={data.date}
-    max={new Date().toISOString().split('T')[0]} // Set max date to today
-    onChange={(e) => setData({ ...data, date: e.target.value })}
-  />
-</div>
+          <label htmlFor="dateReleased" className="form-label me-2">
+            Released Date
+          </label>
+          <input
+            type="date"
+            className="form-control"
+            id="dateReleased"
+            style={narrowerInputStyle}
+            value={data.date}
+            max={new Date().toISOString().split("T")[0]} // Set max date to today
+            onChange={(e) => setData({ ...data, date: e.target.value })}
+          />
+        </div>
         <div className="mb-3 row align-items-center">
           <div className="col-auto">
             <label htmlFor="artWork" className="form-label">
@@ -149,7 +145,9 @@ const AddSongs = () => {
               id="artists"
               style={narrowerInputStyle}
               value={data.artists}
-              onChange={(e) => setData((f)=>({...f,artists:e.target.value}))}
+              onChange={(e) =>
+                setData((f) => ({ ...f, artists: e.target.value }))
+              }
             >
               <option value="">Select</option>
               {artists.map((artist) => (
@@ -165,7 +163,7 @@ const AddSongs = () => {
               Add Artist
             </Button>
           </div>
-  </div>
+        </div>
         <div className="mb-3 d-flex">
           <button className="btn btn-outline-secondary me-2" type="reset">
             Cancel

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import NavBar from './NavBar';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import Rating from './Rating';
+import React, { useEffect, useState } from "react";
+import NavBar from "./NavBar";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import Rating from "./Rating";
 
 const Home = () => {
   const [tableData, setTableData] = useState([]);
@@ -12,20 +12,19 @@ const Home = () => {
     const fetchData = async () => {
       try {
         // Fetch top songs data
-        const response = await axios.get('http://localhost:8080/songs');
+        const response = await axios.get("http://localhost:8080/songs");
         setTableData(response.data);
-
-        // Fetch top artists data (including names, date of birth, and songs)
-        const artistsResponse = await axios.get('http://localhost:8080/artists/');
+        const artistsResponse = await axios.get(
+          "http://localhost:8080/artists/"
+        );
         setArtistsData(artistsResponse.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
   }, []);
-  
 
   return (
     <div className="container mt-4">
@@ -51,7 +50,11 @@ const Home = () => {
             {tableData.map((song, index) => (
               <tr key={index}>
                 <td>
-                  <img src={song.artWork} alt={song.sname} style={{ width: '100px' }} />
+                  <img
+                    src={song.artWork}
+                    alt={song.sname}
+                    style={{ width: "100px" }}
+                  />
                 </td>
                 <td>{song.sname}</td>
                 <td>{song.date.split("T")[0]}</td>
